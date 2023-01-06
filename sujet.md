@@ -514,8 +514,8 @@ Afin de compléter ce travail pratique, vous devrez suivre les étapes suivantes
 
 Vous devez cloner le dépôt fourni et l'héberger sur la plateforme [Gitlab du
 département](https://gitlab.info.uqam.ca/). Votre dépôt devra se nommer
-**exactement** `inf3135-tp1-a22` et l'URL devra être **exactement**
-`https://gitlab.info.uqam.ca/<utilisateur>/inf3135-tp1-a22`, où
+**exactement** `inf3135-tp1-h23` et l'URL devra être **exactement**
+`https://gitlab.info.uqam.ca/<utilisateur>/inf3135-tp1-h23`, où
 `<utilisateur>` doit être remplacé par votre code MS de l'UQAM ou par votre nom
 d'utilisateur. Il devra être **privé** et accessible seulement par vous et par
 l'utilisateur `dogny_g`.
@@ -719,9 +719,9 @@ Tout programme qui ne compile pas se verra automatiquement attribuer
 En outre, si vous ne respectez pas les critères suivants, une pénalité
 de **50%** sera imposée :
 
-- Votre dépôt doit se nommer **exactement** `inf3135-tp1-a22`
+- Votre dépôt doit se nommer **exactement** `inf3135-tp1-h23`
 - L'URL de votre dépôt doit être **exactement**
-  `https://gitlab.info.uqam.ca/<utilisateur>/inf3135-tp1-a22` où
+  `https://gitlab.info.uqam.ca/<utilisateur>/inf3135-tp1-h23` où
   `<utilisateur>` doit être remplacé par votre identifiant
 - Les usager `dogny_g` et `correcteur`doivent avoir accès à votre projet en mode
   *Developer*.
@@ -735,7 +735,7 @@ de **50%** sera imposée :
 
 ## Remise
 
-Le travail est automatiquement remis à la date de remise prévue. Vous n'avez rien de plus à faire. Assurez-vous d’avoir votre travail disponible sur votre branche `master|main` qui sera considérée pour la correction. Tous les commits après le **9 octobre  2022 à 23:59** ne seront pas considérés pour la correction.
+Le travail est automatiquement remis à la date de remise prévue. Vous n'avez rien de plus à faire. Assurez-vous d’avoir votre travail disponible sur votre branche `master|main` qui sera considérée pour la correction. Tous les commits après le **12 février 2023 à 23:59** ne seront pas considérés pour la correction.
 
 
 ---
