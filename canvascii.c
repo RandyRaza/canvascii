@@ -60,19 +60,6 @@ enum error {
     ERR_WITH_VALUE             = 7,  // Problem with value
 };
 
-struct canvas init_pen(struct canvas matrice, int argc, char *argv[]){
-	matrice.pen = 7;
-	for (int i = 0; i < argc; i++){
-		if (strcmp(argv[i], "-p") == 0 ){
-			if (i + 1 < argc ){
-				matrice.pen = *argv[i + 1];
-			}
-			break;
-		}
-	}
-	return matrice;
-}
-
 struct canvas init_canvas(struct canvas matrice, char *argv[], int i) {
 		matrice.height = atoi(strtok(argv[i + 1], ","));
 		matrice.width = atoi(strtok(NULL, " "));
@@ -236,9 +223,7 @@ int main(int argc, char *argv[]) {
 				afficher_canvas(matrice);
 				exit(0);
 			}else if (strcmp(argv[i], "-p") == 0) {
-				matrice.pen = atoi(argv[i + 1]);
-//				printf("%d", atoi(argv[i + 1]));
-				//bloqué ici pour changer la couleur du pen
+				matrice.pen = argv[i + 1][0];
         	} else if (strcmp(argv[i], "-h") == 0) {
 					matrice = tracer_ligne_horizon(matrice, argv, i);
             } else if (strcmp(argv[i], "-v") == 0){
