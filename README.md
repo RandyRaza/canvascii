@@ -36,10 +36,7 @@ Voici quelques commande pour utiliser le projet:
   * La commande `make clean` supprime les fichiers inutiles ou générés (`.o`,`.html`, etc.).
 
 Voici un exemple de commandes pour exécuter le programme:
-  ```./canvascii -n 2,4```
-  ```./canvascii -s -h 0 < examples/empty5x8.canvas```
-  ```./canvascii -n 5,7 -r 1,1,3,5```
-  ```./canvascii -n 19,19 -p 1 -c 9,9,9 -l 3,3,15,15 -l 3,15,15,3 -k```
+  ```./canvascii -n 2,4 ./canvascii -s -h 0 < examples/empty5x8.canvas ./canvascii -n 5,7 -r 1,1,3,5 ./canvascii -n 19,19 -p 1 -c 9,9,9 -l 3,3,15,15 -l 3,15,15,3 -k```
 
 ## Tests
 
