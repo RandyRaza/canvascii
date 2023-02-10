@@ -1,100 +1,86 @@
 # TP1: Dessiner sur un canevas ASCII"
 
-
-## Format Markdown (supprimer cette section avant la remise)
-
-N'oubliez pas de bien exploiter le format Markdown.
-
-Sauter une ligne pour changer de paragraphe.
-
-Mettre les noms de fichier et bout de code courts entre apostrophes inversés.
-Par exemple, si vous parlez du fichier `Makefile`.
-
-Mettre les longs bouts de code dans des blocs de code (triples apostrophes
-inversés). Par exemple, vous pouvez donner un exemple de commande comme suit:
-
-```sh
-$ make
-$ ls -a
-```
-
-Utiliser des listes à puces ou des énumérations le plus possible (plus agréable
-à lire). Par exemple, pour décrire le contenu du projet:
-
-* `README.md`: ce fichier
-* `Makefile`: permet d'automatiser la compilation
-* etc.
-
-Bien aérer le contenu du fichier source (`README.md`). Éviter les longues
-lignes dans le fichier Markdown (par exemple, limiter à 80) pour une meilleure
-lisibilité avec un éditeur de texte.
-
 ## Description
 
-Décrivez ici le projet. Commencez d'abord par une description générale, puis
-donnez ensuite des détails. Indiquez le contexte dans lequel ce travail est
-accompli (cours, sigle, enseignant, université).
+Le projet canvascii.c consiste à créer un programme en C qui permet de dessiner sur un canevas ASCII. Le canevas peut être initialisé ou lu à partir de l'entrée standard (stdin) et le résultat est affiché sur la sortie standard (stdout). Le programme doit avoir une mise en œuvre précise pour permettre une correction automatisée et des tests automatisés.
 
-Aussi, insérer un lien vers le [sujet du travail](sujet.md).
+Projet réalisé dans le cadre du cours Construction et maintenance de logiciels. Sigle: INF3135. Enseignant: Serge Dogny.  Université du Quebec à Montréal.
+[sujet du travail](sujet.md).
 
 ## Auteur
 
-Indiquez ici votre prénom et nom, puis votre code permanent entre parenthèses,
-sans mettre en gras ou en italique.
-
-Par exemple,
-
-Serge Dogny (ABCD12345678)
+Randy Razafindrabe (RAZR11308805)
 
 ## Fonctionnement
 
-Expliquez d'abord en mots comment faire fonctionner le projet (imaginez que la
-personne qui l'utilisera ne connaît pas C, ne connaît pas le projet et souhaite
-seulement saisir une série de commandes pour l'exécuter). En particulier,
-indiquez les commandes qui doivent être entrées pour la compilation et
-l'exécution.
+Le canevas est représenté par un fichier texte contenant h lignes de même longueur w. Les seuls caractères acceptés sont `.` qui représente un pixel vide, et les nombres de 0 à 7 qui représentent respectivement un pixel noir, rouge, vert, jaune, bleu, magenta, cyan et blanc.
+
+Lorsqu'il est lancé sans argument, le programme affiche un manuel d'utilisation sur la sortie standard. Il prend en charge les options suivantes:
+
+  * `-n HEIGHT,WIDTH`: crée un nouveau canevas vide de hauteur h et de largeur w. Cette option doit être utilisée en premier, sinon le comportement est indéterminé.
+  * `-s`: affiche le canevas et quitte le programme.
+  * `-k`: active la sortie en couleur.
+  * `-p` CHAR`: définit le crayon à CHAR. Les seuls crayons autorisés sont 0 à 7.
+  * `-h ROW`: dessine une ligne horizontale sur la ligne ROW.
+  * `-v COL`: dessine une ligne verticale sur la colonne COL.
+  * `-r ROW,COL,HEIGHT,WIDTH`: dessine un rectangle de dimension HEIGHT x WIDTH avec le coin supérieur gauche à (ROW, COL).
+  * `-l ROW1,COL1,ROW2,COL2`: dessine un segment discret de (ROW1, COL1) à (ROW2, COL2) avec l'algorithme de Bresenham.
+  * `-c ROW,COL,RADIUS`: dessine un cercle centré à (ROW, COL) de rayon RADIUS avec l'algorithme du point milieu.
+
+Les dimensions maximales autorisées pour le canevas sont 40 lignes et 80 colonnes.
+
+Voici quelques commande pour utiliser le projet:
+  * La commande `make` crée l'exécutable `canvascii` s'il y a eu une modification du fichier `canvascii.c` en le compilant selon le standard C11, avec lesoptions `-Wall` et `-Wextra` lors de la compilation.
+  * La commande `make test` recompile l'exécutable si nécessaire, puis lance la suite de tests contenue dans le fichier `check.bats`.
+  * La commande `make html` transforme les fichiers `README.md` et `sujet.md` en HTML.
+  * La commande `make clean` supprime les fichiers inutiles ou générés (`.o`,`.html`, etc.).
+
+Voici un exemple de commandes pour exécuter le programme:
+  ```./canvascii -n 2,4```
+  ```./canvascii -s -h 0 < examples/empty5x8.canvas```
+  ```./canvascii -n 5,7 -r 1,1,3,5```
+  ```./canvascii -n 19,19 -p 1 -c 9,9,9 -l 3,3,15,15 -l 3,15,15,3 -k```
 
 ## Tests
 
-Expliquez ici comment lancer la suite de tests automatiques avec la commande
-`make test`, ainsi que le résultat que vous obtenez.
+Pour lancer les tests, il suffit de lancer la commande `make test`, le fichier check.bats se lancera automatiquement: 34 tests, 2 failures.
 
 ## Dépendances
 
-Indiquez les dépendances du projet, avec lien officiel. Il faudrait au moins
-mentionner GCC et [Bats](https://github.com/bats-core/bats-core). Utiliser une
-liste à puces pour donner la liste des dépendances.
+Dépendances utilisées:
+  * `GCC` pour la compilation 
+  * `Bats` pour les tests.
+  * `<stdio.h>`
+  * `<string.h>`
+  * `<stdlib.h>`
+  * `<unistd.h>`
+  * `<ctype.h>`
 
 ## Références
 
-Indiquez ici les références que vous avez utilisées pour compléter le projet,
-avec l'hyperlien vers la référence. Pas besoin de mentionner les diapositives
-du cours, mais si vous avez eu recours à un site d'aide, un fragment de code ou
-une discussion sur un forum, mentionnez-le.
+Deux fonctions nécessitaient l'utilisation d'algorithmes déjà existants.
+Pour la fonction tracer_segment(), l'[Algorithme de Bresenham](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm).
+Pour la fonction tracer_cercle(), l'[Algorithme de tracé d'arc de cercle par point milieu](https://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#C).
 
 ## État du projet
 
-Indiquez toutes les tâches qui ont été complétés en insérant un `X` entre les
-crochets. Si une tâche n'a pas été complétée, expliquez pourquoi (lors de la
-remise, vous pouvez supprimer ce paragraphe).
-
-* [ ] Le nom du dépôt GitLab est exactement `inf3135-tp1-h23` (Pénalité de
+* [X] Le nom du dépôt GitLab est exactement `inf3135-tp1-h23` (Pénalité de
   **50%**).
-* [ ] L'URL du dépôt GitLab est exactement (remplacer `utilisateur` par votre
+* [X] L'URL du dépôt GitLab est exactement (remplacer `utilisateur` par votre
   nom identifiant GitLab) `https://gitlab.info.uqam.ca/utilisateur/inf3135-tp1-h23`
   (Pénalité de **50%**).
-* [ ] Les usagers `dogny_g` et `correcteur` ont accès au projet en mode *Developer*
+* [X] Les usagers `dogny_g` et `correcteur` ont accès au projet en mode *Developer*
   (Pénalité de **50%**).
-* [ ] Le dépôt GitLab est un *fork* de [ce
+* [X] Le dépôt GitLab est un *fork* de [ce
   dépôt](https://gitlab.info.uqam.ca/inf3135-sdo/canvascii)
   (Pénalité de **50%**).
-* [ ] Le dépôt GitLab est privé (Pénalité de **50%**).
-* [ ] Le dépôt contient au moins un fichier `.gitignore`.
-* [ ] Le fichier `Makefile` permet de compiler le projet lorsqu'on entre
+* [X] Le dépôt GitLab est privé (Pénalité de **50%**).
+* [X] Le dépôt contient au moins un fichier `.gitignore`.
+* [X] Le fichier `Makefile` permet de compiler le projet lorsqu'on entre
   `make`. Il supporte les cibles `html`, `test` et `clean`.
-* [ ] Le nombre de tests qui réussissent/échouent avec la `make test` est
+* [X] Le nombre de tests qui réussissent/échouent avec la `make test` est
   indiqué quelque part dans le fichier `README.md`.
-* [ ] Les sections incomplètes de ce fichier (`README.md`) ont été complétées.
-* [ ] L'en-tête du fichier est documentée.
-* [ ] L'en-tête des déclarations des fonctions est documentée (*docstring*).
-* [ ] Le programme ne contient pas de valeurs magiques.
+* [X] Les sections incomplètes de ce fichier (`README.md`) ont été complétées.
+* [X] L'en-tête du fichier est documentée.
+* [X] L'en-tête des déclarations des fonctions est documentée (*docstring*).
+* [X] Le programme ne contient pas de valeurs magiques.

@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
 #include <unistd.h>
+#include <ctype.h>
 #define MAX_HEIGHT 40
 #define MAX_WIDTH 80
 
 #define USAGE "\
-Usage: %s [-n HEIGHT,WIDTH] [-s] [-k] [-p CHAR]\n\
+Usage: ./canvascii [-n HEIGHT,WIDTH] [-s] [-k] [-p CHAR]\n\
           [-h ROW] [-v COL] [-r ROW,COL,HEIGHT,WIDTH]\n\
           [-l ROW1,COL1,ROW2,COL2] [-c ROW,COL,RADIUS]\n\
 Draws on an ASCII canvas. The canvas is provided on stdin and\n\
@@ -62,79 +62,33 @@ enum error
 	ERR_WITH_VALUE = 7,				// Problem with value
 };
 
-void gestion_erreur(struct canvas matrice, char *argv[], int ligne)
+struct canvas init_canvas(struct canvas matrice, char *argv[], int i)
 {
-	enum error sortie;
-	// int argc = atoi(argv[ligne]) + 1;
-
-	for (int i = 0; i < atoi(argv[ligne]); i++)
+	char *str = strdup(argv[i + 1]);
+	char *comma = strchr(str, ',');
+	if (comma == NULL)
 	{
-		for (int j = 0; j < matrice.height; j++)
-		{
-			for (int k = 0; k < matrice.width; k++)
-			{
-				if (atoi(&matrice.pixels[j][k]) < 1 && atoi(&matrice.pixels[j][k]) > 7 || strcmp(&matrice.pixels[j][k], ".") != 0)
-				{
-					fprintf(stderr, "Error: wrong pixel value");
-					enum error sortie = ERR_WRONG_PIXEL;
-				}
+		fprintf(stderr, "Error: incorrect value with option -n\n");
+		fprintf(stderr, "%s", USAGE);
+		exit(ERR_WITH_VALUE);
+	}
+	*comma = '\0';
+	matrice.height = atoi(str);
+	matrice.width = atoi(comma + 1);
+	free(str);
 
-				// if ((atoi(argv[ligne + 1])) < 0 || (atoi(argv[ligne + 1])) >= matrice.height){
-				// 	fprintf(stderr, "Error: incorrect value with option -h\n");
-				// 	printf("%s", USAGE);
-				// 	exit(ERR_WITH_VALUE);
-
-				// if (matrice.pixels[k][j] != pixels_supporte)
-				// {
-				// 	fprintf(stderr, "Error: wrong pixel value");
-				// 	printf("%s", USAGE);
-				// 	enum error sortie = ERR_WRONG_PIXEL;
-				// }
-				if (strcmp(argv[ligne + 1], " ") == 0)
-				{
-					fprintf(stderr, "Error: missing value with option");
-					enum error sortie = ERR_MISSING_VALUE;
-				}
-				if (strcmp(argv[ligne], "-p") == 0)
-				{
-					if (strcmp(argv[ligne + 1], " ") == 0)
-					{
-						fprintf(stderr, "Error: missing value with option");
-						enum error sortie = ERR_MISSING_VALUE;
-					}
-				}
-			}
-		}
+	if (matrice.height > MAX_HEIGHT || matrice.width > MAX_WIDTH)
+	{
+		fprintf(stderr, "Error: incorrect value with option -n\n");
+		printf("%s", USAGE);
+		exit(ERR_WITH_VALUE);
 	}
 
-	// if (){
-
-	// }
-	printf("%s", USAGE);
-
-	exit(sortie);
-}
-
-struct canvas init_canvas(struct canvas matrice, char *argv[], int i)
-
-{
-	matrice.height = atoi(strtok(argv[i + 1], ","));
-	matrice.width = atoi(strtok(NULL, " "));
 	matrice.pen = '7';
 
-	if (matrice.height > MAX_HEIGHT){
-				fprintf(stderr, "Error: canvas is too high (max height: 40)\n");
-				printf("%s", USAGE);
-				exit(ERR_CANVAS_TOO_HIGH);
-	} else if (matrice.width > MAX_WIDTH){
-				fprintf(stderr, "Error: canvas is too wide (max width: 80)\n");
-				printf("%s", USAGE);
-				exit(ERR_CANVAS_TOO_WIDE);
-	}
-	
-	for (int k = 0; k < matrice.height; k++)
+	for (int k = 0; k < (int)matrice.height; k++)
 	{
-		for (int j = 0; j < matrice.width; j++)
+		for (int j = 0; j < (int)matrice.width; j++)
 		{
 			matrice.pixels[k][j] = '.';
 		}
@@ -144,17 +98,11 @@ struct canvas init_canvas(struct canvas matrice, char *argv[], int i)
 
 void afficher_canvas(struct canvas matrice)
 {
-	for (int i = 0; i < matrice.height; i++)
+	for (int i = 0; i < (int)matrice.height; i++)
 	{
-		for (int j = 0; j < matrice.width; j++)
+		for (int j = 0; j < (int)matrice.width; j++)
 		{
-			// if (matrice.pixels[k][j] != pixels_supporte)
-			// {
-			// 	fprintf(stderr, "Error: wrong pixel value");
-			// 	printf("%s", USAGE);
-			// 	exit(ERR_WRONG_PIXEL);
-			// }
-			printf("%c ", matrice.pixels[i][j]);
+			printf("%c", matrice.pixels[i][j]);
 		}
 		printf("\n");
 	}
@@ -162,11 +110,10 @@ void afficher_canvas(struct canvas matrice)
 
 void afficher_canvas_en_couleur(struct canvas matrice)
 {
-	for (int i = 0; i < matrice.height; i++)
+	for (int i = 0; i < (int)matrice.height; i++)
 	{
-		for (int j = 0; j < matrice.width; j++)
+		for (int j = 0; j < (int)matrice.width; j++)
 		{
-			// char c = matrice.pixels[i][j];
 			char c = (matrice.pixels[i][j] == '.') ? '0' : matrice.pixels[i][j];
 			if (c == '0')
 				printf("\033[40m \033[0m");
@@ -186,7 +133,6 @@ void afficher_canvas_en_couleur(struct canvas matrice)
 				printf("\033[47m \033[0m");
 			else
 				printf("%c", matrice.pixels[i][j]);
-			// printf("%c ");
 		}
 		printf("\n");
 	}
@@ -194,13 +140,13 @@ void afficher_canvas_en_couleur(struct canvas matrice)
 
 struct canvas tracer_ligne_horizon(struct canvas matrice, char *argv[], int ligne)
 {
-	if ((atoi(argv[ligne + 1])) < 0 || (atoi(argv[ligne + 1])) >= matrice.height)
+	if ((atoi(argv[ligne + 1])) < 0 || ((int)atoi(argv[ligne + 1]) >= (int)matrice.height))
 	{
 		fprintf(stderr, "Error: incorrect value with option -h\n");
 		printf("%s", USAGE);
 		exit(7);
 	}
-	for (int j = 0; j < matrice.width; j++)
+	for (int j = 0; j < (int)matrice.width; j++)
 	{
 		matrice.pixels[atoi(argv[ligne + 1])][j] = matrice.pen;
 	}
@@ -210,13 +156,13 @@ struct canvas tracer_ligne_horizon(struct canvas matrice, char *argv[], int lign
 struct canvas tracer_ligne_verticale(struct canvas matrice, char *argv[], int colonne)
 {
 
-	if ((atoi(argv[colonne + 1])) < 0 || (atoi(argv[colonne + 1])) >= matrice.width)
+	if ((atoi(argv[colonne + 1])) < 0 || ((int)atoi(argv[colonne + 1])) >= (int)matrice.width)
 	{
 		fprintf(stderr, "Error: incorrect value with option -v\n");
 		printf("%s", USAGE);
-		exit(7);
+		exit(ERR_WITH_VALUE);
 	}
-	for (int i = 0; i < matrice.width; i++)
+	for (int i = 0; i < (int)matrice.width; i++)
 	{
 		matrice.pixels[i][atoi(argv[colonne + 1])] = matrice.pen;
 	}
@@ -237,7 +183,7 @@ struct canvas tracer_rectangle(struct canvas matrice, char *argv[], int ligne)
 	{
 		fprintf(stderr, "Error: incorrect value with option -r\n");
 		printf("%s", USAGE);
-		exit(7);
+		exit(ERR_WITH_VALUE);
 	}
 
 	for (int i = debut_ligne; i < max_ligne; i++)
@@ -333,38 +279,110 @@ struct canvas tracer_cercle(struct canvas matrice, char *argv[], int ligne)
 	return matrice;
 }
 
-int main(int argc, char *argv[])
+void gestion_options(int argc, char *argv[])
 {
 	struct canvas matrice;
+	matrice.width = 0;
+	matrice.height = 0;
+	matrice.pen = '7';
+
+	if (!isatty(STDIN_FILENO))
+	{
+		int largeur = 0;
+		int hauteur = 0;
+		int ligne = 0;
+		char character = 0;
+		while ((character = fgetc(stdin)) != EOF)
+		{
+			if (largeur > MAX_WIDTH)
+			{
+				fprintf(stderr, "Error: canvas is too wide (max width: 80)\n");
+				printf("%s", USAGE);
+				exit(ERR_CANVAS_TOO_WIDE);
+			}
+			if (hauteur > MAX_HEIGHT)
+			{
+				fprintf(stderr, "Error: canvas is too high (max height: 40)\n");
+				printf("%s", USAGE);
+				exit(ERR_CANVAS_TOO_HIGH);
+			}
+
+			if (character == '#')
+			{
+				fprintf(stderr, "Error: wrong pixel value #\n");
+				printf("%s", USAGE);
+				exit(ERR_WRONG_PIXEL);
+			}
+			if (character == '\n')
+			{
+				hauteur++;
+				if (ligne > largeur || ligne < largeur)
+				{
+					fprintf(stderr, "Error: canvas should be rectangular\n");
+					printf("%s", USAGE);
+					exit(ERR_CANVAS_NON_RECTANGULAR);
+				}
+				ligne = 0;
+			}
+			else
+			{
+				matrice.pixels[hauteur][ligne] = character;
+				ligne++;
+				largeur = (ligne > largeur) ? ligne : largeur;
+			}
+		}
+		matrice.height = hauteur;
+		matrice.width = largeur;
+	}
 	if (argc == 1)
 	{
 		printf("%s", USAGE);
 	}
 	else
 	{
-
 		for (int i = 0; i < argc; i++)
 		{
 			if (strcmp(argv[i], "-n") == 0)
 			{
-				matrice = init_canvas(matrice, argv, i);
+				if (i + 1 >= argc)
+				{
+					fprintf(stderr, "Error: missing value with option -n\n");
+					fprintf(stderr, "%s", USAGE);
+					exit(ERR_MISSING_VALUE);
+				}
+				else
+
+					matrice = init_canvas(matrice, argv, i);
 			}
-			// else if (atoi((argv[i + 1])) < 0 || atoi((argv[i + 1])) > 0)
-			// {
-			// }
 			else if (strcmp(argv[i], "-s") == 0)
 			{
 				afficher_canvas(matrice);
-				exit(0);
+				exit(OK);
 			}
 			else if (strcmp(argv[i], "-k") == 0)
 			{
 				afficher_canvas_en_couleur(matrice);
-				exit(0);
+				exit(OK);
 			}
 			else if (strcmp(argv[i], "-p") == 0)
 			{
-				matrice.pen = argv[i + 1][0];
+				if (!isdigit(*argv[i + 1]))
+				{
+					fprintf(stderr, "Error: incorrect value with option -p\n");
+					fprintf(stderr, "%s", USAGE);
+					exit(ERR_WITH_VALUE);
+				}
+				else
+				{
+					if (atoi(argv[i + 1]) < 1 || atoi(argv[i + 1]) > 7)
+					{
+						fprintf(stderr, "Error: incorrect value after option -p\n");
+						fprintf(stderr, "%s", USAGE);
+						exit(ERR_WITH_VALUE);
+					}
+					else
+						matrice.pen = argv[i + 1][0];
+				}
 			}
 			else if (strcmp(argv[i], "-h") == 0)
 			{
@@ -386,15 +404,19 @@ int main(int argc, char *argv[])
 			{
 				matrice = tracer_cercle(matrice, argv, i);
 			}
-			else if (strcmp(argv[i], "./canvascii") == 1 || strcmp(argv[i + 1], "")){
-				fprintf(stderr, "Error: unrecognized option\n");
-				printf("%s", USAGE);
-				enum error sortie = ERR_UNRECOGNIZED_OPTION;
-				break;
-			} 
+			else if (strcmp(argv[i], "-a") == 0)
+			{
+				fprintf(stderr, "Error: unrecognized option -a\n");
+				fprintf(stderr, "%s", USAGE);
+				exit(ERR_UNRECOGNIZED_OPTION);
+			}
+		}
 		afficher_canvas(matrice);
 	}
-
-	return 0;
 }
+
+int main(int argc, char *argv[])
+{
+	gestion_options(argc, argv);
+	return (0);
 }
