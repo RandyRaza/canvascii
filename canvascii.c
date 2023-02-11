@@ -12,6 +12,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <termios.h>
+#include <sys/stat.h>
 #include <ctype.h>
 #define MAX_HEIGHT 40
 #define MAX_WIDTH 80
@@ -103,9 +105,9 @@ struct canvas init_canvas(struct canvas matrice, char *argv[], int i)
 	}
 
 	matrice.pen = '7';
-	
+
 	for (int k = 0; k < (int)matrice.height; k++)
-	{	
+	{
 		for (int j = 0; j < (int)matrice.width; j++)
 		{
 			matrice.pixels[k][j] = '.';
@@ -131,7 +133,7 @@ void afficher_canvas(struct canvas matrice)
 }
 
 /**
- * Affiche le canvas en appliquant les couleurs correspondant au pen sélectionné.  
+ * Affiche le canvas en appliquant les couleurs correspondant au pen sélectionné.
  * @param matrice, Structure du canvas à afficher.
  */
 void afficher_canvas_en_couleur(struct canvas matrice)
@@ -239,7 +241,8 @@ struct canvas tracer_rectangle(struct canvas matrice, char *argv[], int ligne)
 	for (int i = debut_ligne; i < max_ligne; i++)
 	{
 		for (int j = debut_colonne; j < max_colonne; j++)
-		{	char temp = matrice.pixels[i][j];
+		{
+			char temp = matrice.pixels[i][j];
 			if (i == debut_ligne || i == max_ligne - 1 || j == debut_colonne || j == max_colonne - 1)
 				matrice.pixels[i][j] = matrice.pen;
 			else
@@ -248,7 +251,6 @@ struct canvas tracer_rectangle(struct canvas matrice, char *argv[], int ligne)
 	}
 	return matrice;
 }
-
 
 /**
  * Permet de tracer un segment sur le canvas.
@@ -352,7 +354,7 @@ struct canvas tracer_cercle(struct canvas matrice, char *argv[], int ligne)
  * Fonction qui gère toute les options que le programme permet d'utiliser
  * @param argc, représente le nombre d'arguments dans la ligne de commande utilisée pour exécuter le programme.
  * @param argv, ableau d'arguments de la ligne de commande.
- */ 
+ */
 void gestion_options(int argc, char *argv[])
 {
 	struct canvas matrice;
@@ -360,56 +362,106 @@ void gestion_options(int argc, char *argv[])
 	matrice.height = 0;
 	matrice.pen = '7';
 
-	//(!isatty(STDIN_FILENO))
-	if (!isatty(fileno(stdin)))
-	{
-		int largeur = 0;
-		int hauteur = 0;
-		int ligne = 0;
-		char character = 0;
+	// //(!isatty(STDIN_FILENO))
+	// if (!isatty(fileno(stdin)))
+	// {
+	// 	int largeur = 0;
+	// 	int hauteur = 0;
+	// 	int ligne = 0;
+	// 	char character = 0;
 
-		while ((character = fgetc(stdin)) != EOF)
-		{
-			if (largeur > MAX_WIDTH)
-			{
-				fprintf(stderr, "Error: canvas is too wide (max width: 80)\n");
-				printf("%s", USAGE);
-				exit(ERR_CANVAS_TOO_WIDE);
-			}
+	// 	while ((character = fgetc(stdin)) != EOF)
+	// 	{
+	// 		if (largeur > MAX_WIDTH)
+	// 		{
+	// 			fprintf(stderr, "Error: canvas is too wide (max width: 80)\n");
+	// 			printf("%s", USAGE);
+	// 			exit(ERR_CANVAS_TOO_WIDE);
+	// 		}
 
-			if (character == '#')
-			{
-				fprintf(stderr, "Error: wrong pixel value #\n");
-				printf("%s", USAGE);
-				exit(ERR_WRONG_PIXEL);
-			}
-			if (character == '\n')
-			{
-				hauteur++;
-				if (ligne > largeur || ligne < largeur)
-				{
-					fprintf(stderr, "Error: canvas should be rectangular\n");
-					printf("%s", USAGE);
-					exit(ERR_CANVAS_NON_RECTANGULAR);
-				}
-				ligne = 0;
-				if (hauteur > MAX_HEIGHT)
-			{
-				fprintf(stderr, "Error: canvas is too high (max height: 40)\n");
-				printf("%s", USAGE);
-				exit(ERR_CANVAS_TOO_HIGH);
-			}
-			}
-			else
-			{
-				matrice.pixels[hauteur][ligne] = character;
-				ligne++;
-				largeur = (ligne > largeur) ? ligne : largeur;
-			}
-		}
-		matrice.height = hauteur;
-		matrice.width = largeur;
-	}
+	// 		if (character == '#')
+	// 		{
+	// 			fprintf(stderr, "Error: wrong pixel value #\n");
+	// 			printf("%s", USAGE);
+	// 			exit(ERR_WRONG_PIXEL);
+	// 		}
+	// 		if (character == '\n')
+	// 		{
+	// 			hauteur++;
+	// 			if (ligne > largeur || ligne < largeur)
+	// 			{
+	// 				fprintf(stderr, "Error: canvas should be rectangular\n");
+	// 				printf("%s", USAGE);
+	// 				exit(ERR_CANVAS_NON_RECTANGULAR);
+	// 			}
+	// 			ligne = 0;
+	// 			if (hauteur > MAX_HEIGHT)
+	// 		{
+	// 			fprintf(stderr, "Error: canvas is too high (max height: 40)\n");
+	// 			printf("%s", USAGE);
+	// 			exit(ERR_CANVAS_TOO_HIGH);
+	// 		}
+	// 		}
+	// 		else
+	// 		{
+	// 			matrice.pixels[hauteur][ligne] = character;
+	// 			ligne++;
+	// 			largeur = (ligne > largeur) ? ligne : largeur;
+	// 		}
+	// 	}
+	// 	matrice.height = hauteur;
+	// 	matrice.width = largeur;
+	// }
+	struct stat buf;
+    if (fstat(fileno(stdin), &buf) == 0 && S_ISREG(buf.st_mode))
+    {
+        int largeur = 0;
+        int hauteur = 0;
+        int ligne = 0;
+        char character = 0;
+
+        while ((character = fgetc(stdin)) != EOF)
+        {
+            if (largeur > MAX_WIDTH)
+            {
+                fprintf(stderr, "Error: canvas is too wide (max width: 80)\n");
+                printf("%s", USAGE);
+                exit(ERR_CANVAS_TOO_WIDE);
+            }
+
+            if (character == '#')
+            {
+                fprintf(stderr, "Error: wrong pixel value #\n");
+                printf("%s", USAGE);
+                exit(ERR_WRONG_PIXEL);
+            }
+            if (character == '\n')
+            {
+                hauteur++;
+                if (ligne > largeur || ligne < largeur)
+                {
+                    fprintf(stderr, "Error: canvas should be rectangular\n");
+                    printf("%s", USAGE);
+                    exit(ERR_CANVAS_NON_RECTANGULAR);
+                }
+                ligne = 0;
+                if (hauteur > MAX_HEIGHT)
+                {
+                    fprintf(stderr, "Error: canvas is too high (max height: 40)\n");
+                    printf("%s", USAGE);
+                    exit(ERR_CANVAS_TOO_HIGH);
+                }
+            }
+            else
+            {
+                matrice.pixels[hauteur][ligne] = character;
+                ligne++;
+                largeur = (ligne > largeur) ? ligne : largeur;
+            }
+        }
+        matrice.height = hauteur;
+        matrice.width = largeur;
+    }
 	if (argc == 1)
 	{
 		printf("%s", USAGE);
@@ -490,6 +542,7 @@ void gestion_options(int argc, char *argv[])
 		afficher_canvas(matrice);
 	}
 }
+
 
 /**
  * Main
