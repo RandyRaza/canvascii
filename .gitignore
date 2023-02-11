@@ -1,7 +1,16 @@
-*.vscode/
-*a.out.dSYM/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+*.vsix
+.history
+.ionide
+*a.out
+*a.out.dSYM
 *.canvascii.c.swo
-*Makefile
 *a.out
 *canvascii
 
