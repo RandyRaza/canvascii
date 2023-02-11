@@ -360,7 +360,8 @@ void gestion_options(int argc, char *argv[])
 	matrice.height = 0;
 	matrice.pen = '7';
 
-	if (!isatty(STDIN_FILENO))
+	//(!isatty(STDIN_FILENO))
+	if (!isatty(fileno(stdin)))
 	{
 		int largeur = 0;
 		int hauteur = 0;
