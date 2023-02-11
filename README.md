@@ -40,7 +40,7 @@ Voici un exemple de commandes pour exécuter le programme:
 
 ## Tests
 
-Pour lancer les tests, il suffit de lancer la commande `make test`, le fichier check.bats se lancera automatiquement: 34 tests, 2 failures.
+Pour lancer les tests, il suffit de lancer la commande `make test`, le fichier check.bats se lancera automatiquement: 34 tests, 0 failures.
 
 ## Dépendances
 

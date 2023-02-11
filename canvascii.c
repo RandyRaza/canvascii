@@ -1,3 +1,13 @@
+/**
+ * canvascii.c
+ *
+ * Ce programme permet de dessiner différentes figures
+ * sur un canvas aux dimensions max de 40x80.
+ *
+ * @author  Randy Razafindrabe
+ * @date    10 Février 2022
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -62,6 +72,14 @@ enum error
 	ERR_WITH_VALUE = 7,				// Problem with value
 };
 
+/**
+ * Initialise le canvas selon les dimensions passées en ligne de commande.
+ * @param matrice, structure canvas à initialiser
+ * @param argv, tableau d'arguments de la ligne de commande
+ * @param i, index de l'argument de la ligne de commande correspondant à la hauteur et
+ * à la largeur du canvas.
+ * @return La structure du canvas initialisée.
+ */
 struct canvas init_canvas(struct canvas matrice, char *argv[], int i)
 {
 	char *str = strdup(argv[i + 1]);
@@ -85,9 +103,9 @@ struct canvas init_canvas(struct canvas matrice, char *argv[], int i)
 	}
 
 	matrice.pen = '7';
-
+	
 	for (int k = 0; k < (int)matrice.height; k++)
-	{
+	{	
 		for (int j = 0; j < (int)matrice.width; j++)
 		{
 			matrice.pixels[k][j] = '.';
@@ -96,6 +114,10 @@ struct canvas init_canvas(struct canvas matrice, char *argv[], int i)
 	return matrice;
 }
 
+/**
+ * Affiche le canvas.
+ * @param matrice, Structure du canvas à afficher.
+ */
 void afficher_canvas(struct canvas matrice)
 {
 	for (int i = 0; i < (int)matrice.height; i++)
@@ -108,6 +130,10 @@ void afficher_canvas(struct canvas matrice)
 	}
 }
 
+/**
+ * Affiche le canvas en appliquant les couleurs correspondant au pen sélectionné.  
+ * @param matrice, Structure du canvas à afficher.
+ */
 void afficher_canvas_en_couleur(struct canvas matrice)
 {
 	for (int i = 0; i < (int)matrice.height; i++)
@@ -138,21 +164,37 @@ void afficher_canvas_en_couleur(struct canvas matrice)
 	}
 }
 
-struct canvas tracer_ligne_horizon(struct canvas matrice, char *argv[], int ligne)
+/**
+ * Permet de tracer une ligne horizontale sur le canvas.
+ * @param matrice, structure canvas à initialiser.
+ * @param argv, tableau d'arguments de la ligne de commande.
+ * @param rangee, index de l'argument de la ligne de commande correspondant à la rangee sur
+ * laquelle dessiner la ligne.
+ * @return Le canvas avec la ligne horizontale.
+ */
+struct canvas tracer_ligne_horizon(struct canvas matrice, char *argv[], int rangee)
 {
-	if ((atoi(argv[ligne + 1])) < 0 || ((int)atoi(argv[ligne + 1]) >= (int)matrice.height))
+	if ((atoi(argv[rangee + 1])) < 0 || ((int)atoi(argv[rangee + 1]) >= (int)matrice.height))
 	{
 		fprintf(stderr, "Error: incorrect value with option -h\n");
 		printf("%s", USAGE);
-		exit(7);
+		exit(ERR_WITH_VALUE);
 	}
 	for (int j = 0; j < (int)matrice.width; j++)
 	{
-		matrice.pixels[atoi(argv[ligne + 1])][j] = matrice.pen;
+		matrice.pixels[atoi(argv[rangee + 1])][j] = matrice.pen;
 	}
 	return matrice;
 }
 
+/**
+ * Permet de tracer une ligne verticale sur le canvas.
+ * @param matrice, structure canvas à initialiser.
+ * @param argv, tableau d'arguments de la ligne de commande.
+ * @param colonne, index de l'argument de la ligne de commande correspondant à la colonne.
+ * sur laquelle dessiner la ligne.
+ * @return Le canvas avec la ligne verticale.
+ */
 struct canvas tracer_ligne_verticale(struct canvas matrice, char *argv[], int colonne)
 {
 
@@ -169,6 +211,14 @@ struct canvas tracer_ligne_verticale(struct canvas matrice, char *argv[], int co
 	return matrice;
 }
 
+/**
+ * Permet de tracer un rectangle sur le canvas.
+ * @param matrice, structure canvas à initialiser.
+ * @param argv, tableau d'arguments de la ligne de commande.
+ * @param ligne, index de l'argument de la ligne de commande correspondant à la position
+ * x0.
+ * @return Le canvas avec le rectangle dessiné.
+ */
 struct canvas tracer_rectangle(struct canvas matrice, char *argv[], int ligne)
 {
 	int debut_ligne = atoi(strtok(argv[ligne + 1], ","));
@@ -189,16 +239,26 @@ struct canvas tracer_rectangle(struct canvas matrice, char *argv[], int ligne)
 	for (int i = debut_ligne; i < max_ligne; i++)
 	{
 		for (int j = debut_colonne; j < max_colonne; j++)
-		{
+		{	char temp = matrice.pixels[i][j];
 			if (i == debut_ligne || i == max_ligne - 1 || j == debut_colonne || j == max_colonne - 1)
 				matrice.pixels[i][j] = matrice.pen;
 			else
-				matrice.pixels[i][j] = '.';
+				matrice.pixels[i][j] = temp;
 		}
 	}
 	return matrice;
 }
 
+
+/**
+ * Permet de tracer un segment sur le canvas.
+ * @param matrice, structure canvas à initialiser.
+ * @param argv, tableau d'arguments de la ligne de commande.
+ * @param ligne, index de l'argument de la ligne de commande correspondant à la position
+ * x0.
+ * @link l'algorithme de Bresenham qui permet de tracer le segment https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+ * @return Le canvas avec le segment dessiné.
+ */
 struct canvas tracer_segment(struct canvas matrice, char *argv[], int ligne)
 {
 	int debut_ligne = atoi(strtok(argv[ligne + 1], ","));
@@ -235,6 +295,15 @@ struct canvas tracer_segment(struct canvas matrice, char *argv[], int ligne)
 	return matrice;
 }
 
+/**
+ * Permet de tracer un cercle sur le canvas.
+ * @param matrice, structure canvas à initialiser.
+ * @param argv, tableau d'arguments de la ligne de commande.
+ * @param ligne, index de l'argument de la ligne de commande correspondant à la position
+ * x0.
+ * @link L'algorithme de tracé d'arc de cercle par point milieu https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+ * @return Le canvas avec le cercle dessiné.
+ */
 struct canvas tracer_cercle(struct canvas matrice, char *argv[], int ligne)
 {
 	int debut_ligne = atoi(strtok(argv[ligne + 1], ","));
@@ -279,6 +348,11 @@ struct canvas tracer_cercle(struct canvas matrice, char *argv[], int ligne)
 	return matrice;
 }
 
+/**
+ * Fonction qui gère toute les options que le programme permet d'utiliser
+ * @param argc, représente le nombre d'arguments dans la ligne de commande utilisée pour exécuter le programme.
+ * @param argv, ableau d'arguments de la ligne de commande.
+ */ 
 void gestion_options(int argc, char *argv[])
 {
 	struct canvas matrice;
@@ -292,6 +366,7 @@ void gestion_options(int argc, char *argv[])
 		int hauteur = 0;
 		int ligne = 0;
 		char character = 0;
+
 		while ((character = fgetc(stdin)) != EOF)
 		{
 			if (largeur > MAX_WIDTH)
@@ -299,12 +374,6 @@ void gestion_options(int argc, char *argv[])
 				fprintf(stderr, "Error: canvas is too wide (max width: 80)\n");
 				printf("%s", USAGE);
 				exit(ERR_CANVAS_TOO_WIDE);
-			}
-			if (hauteur > MAX_HEIGHT)
-			{
-				fprintf(stderr, "Error: canvas is too high (max height: 40)\n");
-				printf("%s", USAGE);
-				exit(ERR_CANVAS_TOO_HIGH);
 			}
 
 			if (character == '#')
@@ -323,6 +392,12 @@ void gestion_options(int argc, char *argv[])
 					exit(ERR_CANVAS_NON_RECTANGULAR);
 				}
 				ligne = 0;
+				if (hauteur > MAX_HEIGHT)
+			{
+				fprintf(stderr, "Error: canvas is too high (max height: 40)\n");
+				printf("%s", USAGE);
+				exit(ERR_CANVAS_TOO_HIGH);
+			}
 			}
 			else
 			{
@@ -380,8 +455,8 @@ void gestion_options(int argc, char *argv[])
 						fprintf(stderr, "%s", USAGE);
 						exit(ERR_WITH_VALUE);
 					}
-					else
-						matrice.pen = argv[i + 1][0];
+					else				
+						 matrice.pen = argv[i + 1][0];	
 				}
 			}
 			else if (strcmp(argv[i], "-h") == 0)
@@ -415,6 +490,9 @@ void gestion_options(int argc, char *argv[])
 	}
 }
 
+/**
+ * Main
+ */
 int main(int argc, char *argv[])
 {
 	gestion_options(argc, argv);
