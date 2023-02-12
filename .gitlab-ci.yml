@@ -16,3 +16,4 @@ test:
         - set -x
         - make
         - make test
+        - printenv
