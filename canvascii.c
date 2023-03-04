@@ -84,7 +84,7 @@ enum error
  */
 struct canvas init_canvas(struct canvas matrice, char *argv[], int i)
 {
-	char *str = strdup((char *)argv[i + 1]);
+	char *str = strndup(argv[i + 1], strlen(argv[i + 1]));
 	char *comma = strchr(str, ',');
 	if (comma == NULL)
 	{
