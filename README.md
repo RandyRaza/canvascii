@@ -1,4 +1,4 @@
-# TP1: Dessiner sur un canevas ASCII"
+# Dessiner sur un canevas ASCII"
 
 ## Description
 
